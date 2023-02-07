@@ -154,7 +154,7 @@ class XGBModel:
 
         logging.info("#####train####\n")
 
-        self.model = xgb.train(params, dtrain, num_boost_round=30000)
+        self.model = xgb.train(params, dtrain, num_boost_round=100000)
 
         # train_pred, var_train = self.model.predict(dtrain), None
         # val_pred, var_val = self.model.predict(dval), None
@@ -193,5 +193,5 @@ class XGBModel:
         # ypred = self.model.predict(dtest, iteration_range=(0, self.model.best_iteration + 1))
         my_pred = np.array(ypred)
 
-        np.savetxt('202221044027_2.csv', my_pred, delimiter=',', encoding='utf-8')
+        np.savetxt('202221044027_xgb_10w.csv', my_pred, delimiter=',', encoding='utf-8')
 
