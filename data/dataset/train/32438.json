@@ -1,0 +1,59 @@
+{
+  "x": {
+    "normal": {
+      "adjacency_matrix": [
+        [0, 0, 1, 1, 1, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0],
+        [0, 0, 0, 1, 0, 1, 1],
+        [0, 0, 0, 0, 1, 1, 1],
+        [0, 0, 0, 0, 0, 0, 1],
+        [0, 0, 0, 0, 0, 0, 1],
+        [0, 0, 0, 0, 0, 0, 0]
+      ],
+      "operators": [
+        "skip_connect",
+        "avg_pool_3x3",
+        "skip_connect",
+        "",
+        "skip_connect",
+        "sep_conv_3x3",
+        "",
+        "",
+        "sep_conv_3x3",
+        "",
+        "",
+        "skip_connect",
+        "skip_connect",
+        ""
+      ]
+    },
+    "reduce": {
+      "adjacency_matrix": [
+        [0, 0, 1, 1, 0, 0, 0],
+        [0, 0, 1, 1, 0, 0, 0],
+        [0, 0, 0, 0, 1, 1, 1],
+        [0, 0, 0, 0, 1, 1, 1],
+        [0, 0, 0, 0, 0, 0, 1],
+        [0, 0, 0, 0, 0, 0, 1],
+        [0, 0, 0, 0, 0, 0, 0]
+      ],
+      "operators": [
+        "skip_connect",
+        "max_pool_3x3",
+        "sep_conv_5x5",
+        "dil_conv_3x3",
+        "",
+        "",
+        "",
+        "avg_pool_3x3",
+        "dil_conv_5x5",
+        "",
+        "",
+        "sep_conv_3x3",
+        "skip_connect",
+        ""
+      ]
+    }
+  },
+  "y": 92.73999786376953
+}
