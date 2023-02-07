@@ -154,7 +154,7 @@ class XGBModel:
 
         logging.info("#####train####\n")
 
-        self.model = xgb.train(params, dtrain, num_boost_round=20000)
+        self.model = xgb.train(params, dtrain, num_boost_round=30000)
 
         # train_pred, var_train = self.model.predict(dtrain), None
         # val_pred, var_val = self.model.predict(dval), None
