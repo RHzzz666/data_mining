@@ -179,16 +179,18 @@ class XGBModel:
         # return valid_metrics
 
     def predict(self):
-        my_pred = []
+        hyps = []
         data_paths = self.root_to_paths_test()
         for data_path in data_paths:
             json_file = json.load(open(data_path, 'r'))
             hyp = json_file['x']
-            dtest = xgb.DMatrix(hyp)
-            test_pred = self.model.predict(dtest)
-            my_pred.append(test_pred)
+            hyps.append(self.encode(hyp))
 
-        my_pred = np.array(my_pred)
+        X_pred = np.array(hyps)
+
+        dtest = xgb.DMatrix(X_pred)
+        ypred = self.model.predict(dtest, iteration_range=(0, self.model.best_iteration + 1))
+        my_pred = np.array(ypred)
 
         np.savetxt('202221044027_1.csv', my_pred, delimiter=',', encoding='utf-8')
 
