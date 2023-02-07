@@ -68,8 +68,8 @@ class LGBModel:
 
         X_pred = np.array(hyps)
 
-        dtest = lgb.Dataset(X_pred)
-        ypred = self.model.predict(dtest)
+        # dtest = lgb.Dataset(X_pred)
+        ypred = self.model.predict(X_pred)
         # ypred = self.model.predict(dtest, iteration_range=(0, self.model.best_iteration + 1))
         my_pred = np.array(ypred)
 
