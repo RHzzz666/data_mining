@@ -130,10 +130,12 @@ class XGBModel:
         # logging.info("shape of x: %s" % X.shape)
         # print(X.shape)
 
-        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1)
+        # X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1)
 
-        dtrain = xgb.DMatrix(X_train, label=y_train)
-        dval = xgb.DMatrix(X_val, label=y_val)
+        # dtrain = xgb.DMatrix(X_train, label=y_train)
+        # dval = xgb.DMatrix(X_val, label=y_val)
+
+        dtrain = xgb.DMatrix(X, label=y)
 
         params = {
             # 'eta': 0.1,
@@ -152,9 +154,7 @@ class XGBModel:
 
         logging.info("#####train####\n")
 
-        self.model = xgb.train(params, dtrain, num_boost_round=20000,
-                               early_stopping_rounds=100, verbose_eval=1,
-                               evals=[(dval, 'val')])
+        self.model = xgb.train(params, dtrain, num_boost_round=20000)
 
         # train_pred, var_train = self.model.predict(dtrain), None
         # val_pred, var_val = self.model.predict(dval), None
@@ -189,23 +189,9 @@ class XGBModel:
         X_pred = np.array(hyps)
 
         dtest = xgb.DMatrix(X_pred)
-        ypred = self.model.predict(dtest, iteration_range=(0, self.model.best_iteration + 1))
+        ypred = self.model.predict(dtest)
+        # ypred = self.model.predict(dtest, iteration_range=(0, self.model.best_iteration + 1))
         my_pred = np.array(ypred)
 
-        np.savetxt('202221044027_1.csv', my_pred, delimiter=',', encoding='utf-8')
+        np.savetxt('202221044027_2.csv', my_pred, delimiter=',', encoding='utf-8')
 
-
-if __name__ == "__main__":
-    data_root = './data/dataset'
-    root = os.path.join(data_root, 'train')
-    path = os.path.join(root, '{}.json'.format(1))
-    json_file = json.load(open(path, 'r'))
-
-    hyp = json_file['x']
-    val_accuracy = json_file['y']
-
-    logging.basicConfig(level=logging.INFO,
-                        format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
-
-    logging.info("x = %s" % hyp)
-    logging.info("y = %s" % val_accuracy)
