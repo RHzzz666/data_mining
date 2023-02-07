@@ -10,7 +10,6 @@ import torch
 import torch.backends.cudnn as cudnn
 
 
-
 class XGBModel:
     def __init__(self, data_root, seed, model_config):
         self.model = None
@@ -32,13 +31,16 @@ class XGBModel:
         self.model_config["param:eval_metric"] = "rmse"
 
     def load_data(self, data_paths):
-        hyps, val_accuracies, test_accuracies = [], [], []
+        hyps, val_accuracies = [], []
 
         for data_path in data_paths:
             json_file = json.load(open(data_path, 'r'))
 
             hyp = json_file['x']
             val_accuracy = json_file['y']
+
+            hyps.append(hyp)
+            val_accuracies.append(val_accuracy)
 
         X = np.array(hyps)
         y = np.array(val_accuracies)
@@ -50,6 +52,15 @@ class XGBModel:
         paths = []
         i = 1
         while i < 46226:
+            path = os.path.join(root, '{}.json'.format(i))
+            paths.extend(path)
+        return paths
+
+    def root_to_paths_test(self):
+        root = os.path.join(self.data_root, 'test')
+        paths = []
+        i = 1
+        while i < 5001:
             path = os.path.join(root, '{}.json'.format(i))
             paths.extend(path)
         return paths
@@ -101,3 +112,32 @@ class XGBModel:
 
         # return valid_metrics
 
+    def predict(self):
+        my_pred = []
+        data_paths = self.root_to_paths_test()
+        for data_path in data_paths:
+            json_file = json.load(open(data_path, 'r'))
+            hyp = json_file['x']
+            dtest = xgb.DMatrix(hyp)
+            test_pred = self.model.predict(dtest)
+            my_pred.append(test_pred)
+
+        my_pred = np.array(my_pred)
+
+        np.savetxt('202221044027_1.csv', my_pred, delimiter=',', encoding='utf-8')
+
+
+if __name__ == "__main__":
+    data_root = './data/dataset'
+    root = os.path.join(data_root, 'train')
+    path = os.path.join(root, '{}.json'.format(1))
+    json_file = json.load(open(path, 'r'))
+
+    hyp = json_file['x']
+    val_accuracy = json_file['y']
+
+    logging.basicConfig(level=logging.INFO,
+                        format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
+
+    logging.info("x = %s" % hyp)
+    logging.info("y = %s" % val_accuracy)
