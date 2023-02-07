@@ -11,10 +11,9 @@ import torch.backends.cudnn as cudnn
 
 
 class XGBModel:
-    def __init__(self, data_root, seed, model_config):
+    def __init__(self, data_root, seed):
         self.model = None
         self.data_root = data_root
-        self.model_config = model_config
         # self.data_config = data_config
         self.seed = seed
 
@@ -27,10 +26,11 @@ class XGBModel:
         logging.basicConfig(level=logging.INFO,
                             format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
 
-        self.model_config["param:objective"] = "reg:squarederror"
-        self.model_config["param:eval_metric"] = "rmse"
+        # self.model_config["param:objective"] = "reg:squarederror"
+        # self.model_config["param:eval_metric"] = "rmse"
 
     def load_data(self, data_paths):
+        # hyp = hypermeter = archtecture
         hyps, val_accuracies = [], []
 
         for data_path in data_paths:
@@ -39,21 +39,78 @@ class XGBModel:
             hyp = json_file['x']
             val_accuracy = json_file['y']
 
-            hyps.append(hyp)
+            # logging.info("x = %s" % hyp)
+            # logging.info("y = %s" % val_accuracy)
+
+            hyps.append(self.encode(hyp))
             val_accuracies.append(val_accuracy)
+        # logging.info("encode_0: %s" % hyps[0])
 
         X = np.array(hyps)
         y = np.array(val_accuracies)
 
         return X, y
 
+    def encode(self, hyp):
+        x = []
+        normal_matrix = np.array(hyp['normal']['adjacency_matrix']).ravel()
+
+        normal_operators = []
+        for op in hyp['normal']['operators']:
+            if op == "sep_conv_3x3":
+                normal_operators.append(0)
+            if op == "sep_conv_5x5":
+                normal_operators.append(1)
+            if op == "dil_conv_3x3":
+                normal_operators.append(2)
+            if op == "dil_conv_5x5":
+                normal_operators.append(3)
+            if op == "max_pool_3x3":
+                normal_operators.append(4)
+            if op == "avg_pool_3x3":
+                normal_operators.append(5)
+            if op == "skip_connect":
+                normal_operators.append(6)
+            if op == "":
+                normal_operators.append(7)
+
+        reduce_matrix = np.array(hyp['reduce']['adjacency_matrix']).ravel()
+
+        reduce_operators = []
+        for op in hyp['reduce']['operators']:
+            if op == "sep_conv_3x3":
+                reduce_operators.append(0)
+            if op == "sep_conv_5x5":
+                reduce_operators.append(1)
+            if op == "dil_conv_3x3":
+                reduce_operators.append(2)
+            if op == "dil_conv_5x5":
+                reduce_operators.append(3)
+            if op == "max_pool_3x3":
+                reduce_operators.append(4)
+            if op == "avg_pool_3x3":
+                reduce_operators.append(5)
+            if op == "skip_connect":
+                reduce_operators.append(6)
+            if op == "":
+                reduce_operators.append(7)
+
+        x.extend(normal_operators)
+        x.extend(normal_matrix.tolist())
+        x.extend(reduce_operators)
+        x.extend(reduce_matrix.tolist())
+
+        return x
+
     def root_to_paths_train(self):
         root = os.path.join(self.data_root, 'train')
+        logging.info("root: %s" % root)
         paths = []
         i = 1
         while i < 46226:
             path = os.path.join(root, '{}.json'.format(i))
-            paths.extend(path)
+            paths.append(path)
+            i += 1
         return paths
 
     def root_to_paths_test(self):
@@ -62,32 +119,41 @@ class XGBModel:
         i = 1
         while i < 5001:
             path = os.path.join(root, '{}.json'.format(i))
-            paths.extend(path)
+            paths.append(path)
+            i += 1
         return paths
-
-    def parse_param_config(self):
-        identifier = "param:"
-        param_config = dict()
-        for key, val in self.model_config.items():
-            if key.startswith(identifier):
-                param_config[key.replace(identifier, "")] = val
-        return param_config
 
     def train(self):
         data_paths = self.root_to_paths_train()
         X, y = self.load_data(data_paths)
+
+        # logging.info("shape of x: %s" % X.shape)
+        # print(X.shape)
 
         X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1)
 
         dtrain = xgb.DMatrix(X_train, label=y_train)
         dval = xgb.DMatrix(X_val, label=y_val)
 
-        param_config = self.parse_param_config()
-        param_config["seed"] = self.seed
+        params = {
+            # 'eta': 0.1,
+            'max_depth': 13,
+            'booster': 'gbtree',
+            'min_child_weight': 39,
+            'colsample_bytree': 0.2545374925231651,
+            'colsample_bylevel': 0.6909224923784677,
+            'lambda': 31.393252465064943,
+            'alpha': 0.24167936088332426,
+            'learning_rate': 0.008237525103357958,
+            'objective': 'reg:squarederror',
+            'eval_metric': 'rmse',
+            'seed': self.seed
+        }
 
-        self.model = xgb.train(param_config, dtrain, num_boost_round=self.model_config["param:num_rounds"],
-                               early_stopping_rounds=self.model_config["early_stopping_rounds"],
-                               verbose_eval=1,
+        logging.info("#####train####\n")
+
+        self.model = xgb.train(params, dtrain, num_boost_round=20000,
+                               early_stopping_rounds=100, verbose_eval=1,
                                evals=[(dval, 'val')])
 
         # train_pred, var_train = self.model.predict(dtrain), None
