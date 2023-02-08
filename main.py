@@ -19,7 +19,7 @@ def train_surrogate_model(model, data_root, seed):
 
 if __name__ == "__main__":
     # choose LGB or XGB or ADA
-    model = XGBModel
+    model = ADAModel
     # model = LGBModel
     # model = ADAModel
     data_root = './data/dataset'
