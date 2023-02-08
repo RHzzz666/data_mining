@@ -6,6 +6,7 @@ import numpy as np
 
 from Xgboost import XGBModel
 from Lgboost import LGBModel
+from Adaboost import ADAModel
 
 
 def train_surrogate_model(model, data_root, seed):
@@ -17,9 +18,10 @@ def train_surrogate_model(model, data_root, seed):
 
 
 if __name__ == "__main__":
-    # choose LGB or XGB
-    model = XGBModel
+    # choose LGB or XGB or ADA
+    # model = XGBModel
     # model = LGBModel
+    model = ADAModel
     data_root = './data/dataset'
     seed = 6
     train_surrogate_model(model, data_root, seed)
