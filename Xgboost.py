@@ -4,10 +4,13 @@ import json
 
 import numpy as np
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 
 import xgboost as xgb
 import torch
 import torch.backends.cudnn as cudnn
+
+import utils
 
 
 class XGBModel:
@@ -130,12 +133,12 @@ class XGBModel:
         # logging.info("shape of x: %s" % X.shape)
         # print(X.shape)
 
-        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1)
+        # X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1)
 
-        dtrain = xgb.DMatrix(X_train, label=y_train)
-        dval = xgb.DMatrix(X_val, label=y_val)
+        # dtrain = xgb.DMatrix(X_train, label=y_train)
+        # dval = xgb.DMatrix(X_val, label=y_val)
 
-        # dtrain = xgb.DMatrix(X, label=y)
+        dtrain = xgb.DMatrix(X, label=y)
 
         params = {
             # 'eta': 0.1,
@@ -154,29 +157,21 @@ class XGBModel:
 
         logging.info("#####train####\n")
 
-        self.model = xgb.train(params, dtrain, num_boost_round=100000, early_stopping_rounds=200,
-                               verbose_eval=1,
-                               evals=[(dval, 'val')])
+        self.model = xgb.train(params, dtrain, num_boost_round=100000)
 
-        # train_pred, var_train = self.model.predict(dtrain), None
+        train_pred, var_train = self.model.predict(dtrain), None
         # val_pred, var_val = self.model.predict(dval), None
-        #
-        # # self.save()
-        #
-        # fig_train = utils.scatter_plot(np.array(train_pred), np.array(y_train), xlabel='Predicted', ylabel='True',
-        #                                title='')
-        # fig_train.savefig(os.path.join(self.log_dir, 'pred_vs_true_train.jpg'))
-        # plt.close()
-        #
-        # fig_val = utils.scatter_plot(np.array(val_pred), np.array(y_val), xlabel='Predicted', ylabel='True', title='')
-        # fig_val.savefig(os.path.join(self.log_dir, 'pred_vs_true_val.jpg'))
-        # plt.close()
-        #
-        # train_metrics = utils.evaluate_metrics(y_train, train_pred, prediction_is_first_arg=False)
-        # valid_metrics = utils.evaluate_metrics(y_val, val_pred, prediction_is_first_arg=False)
-        #
-        # logging.info('train metrics: %s', train_metrics)
-        # logging.info('valid metrics: %s', valid_metrics)
+
+        # self.save()
+
+        fig_train = utils.scatter_plot(np.array(train_pred), np.array(y), xlabel='Predicted', ylabel='True',
+                                       title='')
+        fig_train.savefig(os.path.join('./log', 'pred_vs_true_train_xgboost.jpg'))
+        plt.close()
+
+        train_metrics = utils.evaluate_metrics(y, train_pred, prediction_is_first_arg=False)
+
+        logging.info('train metrics: %s', train_metrics)
 
         # return valid_metrics
 
@@ -195,5 +190,4 @@ class XGBModel:
         ypred = self.model.predict(dtest, iteration_range=(0, self.model.best_iteration + 1))
         my_pred = np.array(ypred)
 
-        np.savetxt('202221044027_xgb_20w.csv', my_pred, delimiter=',', encoding='utf-8')
-
+        np.savetxt('202221044027_xgb_10w_plot.csv', my_pred, delimiter=',', encoding='utf-8')
