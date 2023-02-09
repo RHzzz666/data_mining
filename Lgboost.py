@@ -58,7 +58,7 @@ class LGBModel:
 
         logging.info("#####train####\n")
 
-        self.model = lgb.train(params, dtrain, num_boost_round=30000)
+        self.model = lgb.train(params, dtrain, num_boost_round=10000)
 
         train_pred, var_train = self.model.predict(X), None
         # val_pred, var_val = self.model.predict(dval), None

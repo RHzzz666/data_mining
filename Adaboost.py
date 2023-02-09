@@ -159,4 +159,4 @@ class ADAModel:
         # ypred = self.model.predict(dtest, iteration_range=(0, self.model.best_iteration + 1))
         my_pred = np.array(ypred)
 
-        np.savetxt('202221044027_ada.csv', my_pred, delimiter=',', encoding='utf-8')
+        np.savetxt('202221044027_ada_2w.csv', my_pred, delimiter=',', encoding='utf-8')
