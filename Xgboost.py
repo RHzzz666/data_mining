@@ -166,7 +166,7 @@ class XGBModel:
 
         fig_train = utils.scatter_plot(np.array(train_pred), np.array(y), xlabel='Predicted', ylabel='True',
                                        title='')
-        fig_train.savefig(os.path.join('./log', 'pred_vs_true_train_xgboost.jpg'))
+        fig_train.savefig('pred_vs_true_train_xgboost.jpg')
         plt.close()
 
         train_metrics = utils.evaluate_metrics(y, train_pred, prediction_is_first_arg=False)

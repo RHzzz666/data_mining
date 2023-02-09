@@ -4,10 +4,12 @@ import json
 
 import numpy as np
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 
 import lightgbm as lgb
 import torch
 import torch.backends.cudnn as cudnn
+import utils
 
 class LGBModel:
     def __init__(self, data_root, seed):
@@ -57,6 +59,20 @@ class LGBModel:
         logging.info("#####train####\n")
 
         self.model = lgb.train(params, dtrain, num_boost_round=30000)
+
+        train_pred, var_train = self.model.predict(dtrain), None
+        # val_pred, var_val = self.model.predict(dval), None
+
+        # self.save()
+
+        fig_train = utils.scatter_plot(np.array(train_pred), np.array(y), xlabel='Predicted', ylabel='True',
+                                       title='')
+        fig_train.savefig(os.path.join('./log', 'pred_vs_true_train_xgboost.jpg'))
+        plt.close()
+
+        train_metrics = utils.evaluate_metrics(y, train_pred, prediction_is_first_arg=False)
+
+        logging.info('train metrics: %s', train_metrics)
 
     def predict(self):
         hyps = []
