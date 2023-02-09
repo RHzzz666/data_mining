@@ -129,7 +129,7 @@ class ADAModel:
         data_paths = self.root_to_paths_train()
         X, y = self.load_data(data_paths)
 
-        self.model = AdaBoostRegressor(random_state=0, n_estimators=2000, learning_rate=0.02182249761978233)
+        self.model = AdaBoostRegressor(random_state=0, n_estimators=20000, learning_rate=0.02182249761978233)
         self.model.fit(X, y)
 
         train_pred, var_train = self.model.predict(X), None

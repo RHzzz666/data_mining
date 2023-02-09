@@ -60,7 +60,7 @@ class LGBModel:
 
         self.model = lgb.train(params, dtrain, num_boost_round=30000)
 
-        train_pred, var_train = self.model.predict(dtrain), None
+        train_pred, var_train = self.model.predict(X), None
         # val_pred, var_val = self.model.predict(dval), None
 
         # self.save()
