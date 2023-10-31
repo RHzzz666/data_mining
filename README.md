@@ -1,4 +1,6 @@
-Program of S0812098: Fall 2022
+SCUT postgraduate course: Data Mining
+
+Program of S0812098: Fall 2022, by Prof Gong
 
 !!! REFERENCE ONLY !!!
 
